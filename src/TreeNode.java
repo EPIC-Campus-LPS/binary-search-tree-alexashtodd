@@ -78,32 +78,10 @@ public class TreeNode<E extends Comparable<E>> {
      * @return the numerical value of the comparsion between the two nodes
      */
 
-    void add(E value){
 
-    }
-    boolean contains(E value){
 
-    }
-    int countNodes(){}
-    int countLeafNodes(){}
-    int getHeight(){}
-    void printInorder(){}
-    void printPreorder(){}
-    void printPostorder(){}
-    E delete(E value){}
+
     public int compareTo(TreeNode<E> node){
-
-
-
-
-
-
-
-
-
-
-
-
         return value.compareTo(node.getValue());
     }
 }
