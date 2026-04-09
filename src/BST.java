@@ -4,15 +4,23 @@ public class BST<E extends Comparable<E>> {
     private TreeNode<E> root;
 
     public void add(E value){
+        TreeNode<E> newNode = new TreeNode<>(value, null, null);
         if(root == null){
-            root = new TreeNode<>(value, null, null);
+            root = newNode;
         }else{
-            TreeNode<E> temp = GreaterlessChoser(root, new TreeNode<>(value, null, null));
+            TreeNode<E> temp = GreaterlessChoserORequal(root, newNode);
             while(!testForLeafNode()){
-                temp = GreaterlessChoser(temp,new TreeNode<>(value, null, null));
+                temp = GreaterlessChoserORequal(temp,newNode);
+            }
+            if(GreaterOrLessForNew(temp,newNode).equals("right")){
+                temp.setLeftChild(newNode);
+            }else{
+                temp.setRightChild(newNode);
             }
         }
     }
+
+
     boolean contains(E value){
 
     }
@@ -34,17 +42,19 @@ public class BST<E extends Comparable<E>> {
             return false;
         }
     }
-    TreeNode<E> GreaterlessChoser(TreeNode<E> Ancor,TreeNode<E> Value){
+
+    TreeNode<E> GreaterlessChoserORequal(TreeNode<E> Ancor,TreeNode<E> Value){
         int root1 = Ancor.compareTo(Value);
         TreeNode<E> temp = null;
         if(root1<0){
              temp = root.getLeftChild();
         } else if (root1>0) {
              temp = root.getRightChild();
+        } else{
+            temp = root.getLeftChild();
         }
         return temp;
     }
-
 
     String IntOrString(E value){
         if (value instanceof Integer){
@@ -54,5 +64,16 @@ public class BST<E extends Comparable<E>> {
             return "String";
         }
         return "null";
+    }
+
+    String GreaterOrLessForNew(TreeNode<E> Ancor,TreeNode<E> Value){
+        int root1 = Ancor.compareTo(Value);
+        String temp = "";
+        if(root1<0){
+            temp = "left";
+        } else if (root1>0) {
+            temp = "right";
+        }
+        return temp;
     }
 }
