@@ -20,12 +20,23 @@ public class BST<E extends Comparable<E>> {
         }
     }
 
-
     boolean contains(E value){
+        return containsHelper(root, value);
+    }
+
+    int countNodes(TreeNode<E> node){
+        if (node == null) return 0;
+        return 1 + countNodes(node.getLeftChild()) + countNodes(node.getRightChild());
 
     }
-    int countNodes(){}
-    int countLeafNodes(){}
+
+    int countLeafNodes(TreeNode<E> node){
+        if (node == null) return 0;
+        if (node.getLeftChild() == null && node.getRightChild() == null) return 1;
+        return countLeafNodes(node.getLeftChild()) + countLeafNodes(node.getRightChild());
+
+    }
+    
     int getHeight(){}
     void printInorder(){}
     void printPreorder(){}
@@ -76,4 +87,12 @@ public class BST<E extends Comparable<E>> {
         }
         return temp;
     }
+
+    private boolean containsHelper(TreeNode<E> node, E value) {
+        if (node == null) return false;
+        int cmp = value.compareTo(node.getValue());
+        if (cmp == 0) return true;
+        return cmp < 0 ? containsHelper(node.getLeftChild(), value) : containsHelper(node.getRightChild(), value);
+    }
+
 }
