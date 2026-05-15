@@ -1,5 +1,3 @@
-import com.sun.source.tree.Tree;
-
 /**
  * A class representing a node in a binary tree
  * @param <E> the kind of elements the tree will hold

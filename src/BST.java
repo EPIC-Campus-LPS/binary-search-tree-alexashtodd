@@ -19,35 +19,45 @@ public class BST<E extends Comparable<E>> {
      */
     public void add(E value) {
 
-        // Create the new node that will be inserted
         TreeNode<E> newNode = new TreeNode<>(value, null, null);
 
-        // If tree is empty, new node becomes root
+        // Empty tree
         if (root == null) {
             root = newNode;
-        } else if (root.getLeftChild() == null || root.getRightChild() == null) {
-            if (root.compareTo(newNode) < 0) {
-                root.setRightChild(newNode);
-            } else if (root.compareTo(newNode) > 0) {
-                root.setLeftChild(newNode);
-            } else {
-                root.setLeftChild(newNode);
+            return;
+        }
+
+        TreeNode<E> current = root;
+
+        while (true) {
+
+            int cmp = value.compareTo(current.getValue());
+
+            // Go left
+            if (cmp < 0) {
+
+                if (current.getLeftChild() == null) {
+                    current.setLeftChild(newNode);
+                    return;
+                }
+
+                current = current.getLeftChild();
             }
-        }else {
 
-        // Start traversal from the root
-            TreeNode<E> temp = GreaterlessChoserORequal(root, newNode);
+            // Go right
+            else if (cmp > 0) {
 
-            // Continue moving through tree until a leaf node is found
-            while (!testForLeafNode()) {
-                temp = GreaterlessChoserORequal(temp, newNode);
+                if (current.getRightChild() == null) {
+                    current.setRightChild(newNode);
+                    return;
+                }
+
+                current = current.getRightChild();
             }
 
-            // Decide whether to place node on left or right
-            if (GreaterOrLessForNew(temp, newNode).equals("right")) {
-                temp.setLeftChild(newNode);
-            } else {
-                temp.setRightChild(newNode);
+            // Duplicate value → do nothing
+            else {
+                return;
             }
         }
     }
@@ -80,29 +90,6 @@ public class BST<E extends Comparable<E>> {
     }
 
     /**
-     * Counts the number of leaf nodes in the tree.
-     * A leaf node has no children.
-     *
-     * @param node current node being checked
-     * @return number of leaf nodes
-     */
-    int countLeafNodes(TreeNode<E> node) {
-
-        // Base case: empty node
-        if (node == null) return 0;
-
-        // If node has no children, it is a leaf
-        if (node.getLeftChild() == null &&
-                node.getRightChild() == null) return 1;
-
-        // Count leaves in left and right subtrees
-        return countLeafNodes(node.getLeftChild()) +
-                countLeafNodes(node.getRightChild());
-
-    }
-
-
-    /**
      * Returns the height of the tree.
      *
      * @return height of the BST
@@ -116,6 +103,21 @@ public class BST<E extends Comparable<E>> {
      * Left -> Root -> Right
      */
     void printInorder() {
+        printInorder(root);
+        System.out.println();
+    }
+
+    private void printInorder(TreeNode<E> node) {
+
+        if (node == null) {
+            return;
+        }
+
+        printInorder(node.getLeftChild());
+
+        System.out.print(node.getValue() + " ");
+
+        printInorder(node.getRightChild());
     }
 
     /**
@@ -123,6 +125,21 @@ public class BST<E extends Comparable<E>> {
      * Root -> Left -> Right
      */
     void printPreorder() {
+        printPreorder(root);
+        System.out.println();
+    }
+
+    private void printPreorder(TreeNode<E> node) {
+
+        if (node == null) {
+            return;
+        }
+
+        System.out.print(node.getValue() + " ");
+
+        printPreorder(node.getLeftChild());
+
+        printPreorder(node.getRightChild());
     }
 
     /**
@@ -130,6 +147,21 @@ public class BST<E extends Comparable<E>> {
      * Left -> Right -> Root
      */
     void printPostorder() {
+        printPostorder(root);
+        System.out.println();
+    }
+
+    private void printPostorder(TreeNode<E> node) {
+
+        if (node == null) {
+            return;
+        }
+
+        printPostorder(node.getLeftChild());
+
+        printPostorder(node.getRightChild());
+
+        System.out.print(node.getValue() + " ");
     }
 
     /**
@@ -138,106 +170,132 @@ public class BST<E extends Comparable<E>> {
      * @param value value to delete
      * @return deleted value
      */
+    /**
+     * Deletes a value from the BST.
+     *
+     * @param value value to delete
+     * @return deleted value if found, otherwise null
+     */
     E delete(E value) {
-        return value;
+
+        TreeNode<E> current = root;
+        TreeNode<E> parent = null;
+
+        // Find node to delete
+        while (current != null &&
+                !current.getValue().equals(value)) {
+
+            parent = current;
+
+            if (value.compareTo(current.getValue()) < 0) {
+                current = current.getLeftChild();
+            } else {
+                current = current.getRightChild();
+            }
+        }
+
+        // Value not found
+        if (current == null) {
+            return null;
+        }
+
+        E deletedValue = current.getValue();
+
+        // =========================
+        // CASE 1: LEAF NODE
+        // =========================
+        if (current.getLeftChild() == null &&
+                current.getRightChild() == null) {
+
+            // deleting root
+            if (current == root) {
+                root = null;
+            }
+
+            // remove left reference
+            else if (parent.getLeftChild() == current) {
+                parent.setLeftChild(null);
+            }
+
+            // remove right reference
+            else {
+                parent.setRightChild(null);
+            }
+        }
+
+        // =========================
+        // CASE 2: ONE CHILD
+        // =========================
+        else if (current.getLeftChild() == null ||
+                current.getRightChild() == null) {
+
+            TreeNode<E> child;
+
+            // choose existing child
+            if (current.getLeftChild() != null) {
+                child = current.getLeftChild();
+            } else {
+                child = current.getRightChild();
+            }
+
+            // deleting root
+            if (current == root) {
+                root = child;
+            }
+
+            // replace parent's left
+            else if (parent.getLeftChild() == current) {
+                parent.setLeftChild(child);
+            }
+
+            // replace parent's right
+            else {
+                parent.setRightChild(child);
+            }
+        }
+
+        // =========================
+        // CASE 3: TWO CHILDREN
+        // =========================
+        else {
+
+            TreeNode<E> leftSubtree = current.getLeftChild();
+            TreeNode<E> rightSubtree = current.getRightChild();
+
+            // Replace node with left subtree
+            if (current == root) {
+                root = leftSubtree;
+            }
+            else if (parent.getLeftChild() == current) {
+                parent.setLeftChild(leftSubtree);
+            }
+            else {
+                parent.setRightChild(leftSubtree);
+            }
+
+            // Reinsert right subtree
+            reinsertSubtree(rightSubtree);
+        }
+
+        return deletedValue;
     }
 
     /**
-     * Tests whether the root node is a leaf node.
+     * Reinserts an entire subtree back into the BST.
      *
-     * @return true if root has no children
+     * @param node subtree root
      */
-    boolean testForLeafNode() {
+    private void reinsertSubtree(TreeNode<E> node) {
 
-        // Temporary references to child nodes
-        TreeNode<E> temp = root;
-        TreeNode<E> A = root.getLeftChild();
-        TreeNode<E> B = root.getRightChild();
-
-        // Root is leaf if both children are null
-        if (A == null && B == null) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Chooses whether traversal should continue
-     * left or right based on node comparison.
-     *
-     * @param Ancor current node
-     * @param Value node being inserted
-     * @return next node to visit
-     */
-    TreeNode<E> GreaterlessChoserORequal(TreeNode<E> Ancor, TreeNode<E> Value) {
-
-        // Compare current node to inserted value
-        int root1 = Ancor.compareTo(Value);
-
-        TreeNode<E> temp = null;
-
-        // Move left if smaller
-        if (root1 < 0) {
-            temp = root.getLeftChild();
-
-            // Move right if larger
-        } else if (root1 > 0) {
-            temp = root.getRightChild();
-
-            // Equal values also go left
-        } else {
-            temp = root.getLeftChild();
+        if (node == null) {
+            return;
         }
 
-        return temp;
-    }
+        add(node.getValue());
 
-    /**
-     * Determines whether the generic value
-     * is an Integer or String.
-     *
-     * @param value value being checked
-     * @return type as String
-     */
-    String IntOrString(E value) {
+        reinsertSubtree(node.getLeftChild());
 
-        if (value instanceof Integer) {
-            return "Int";
-        }
-
-        if (value instanceof String) {
-            return "String";
-        }
-
-        return "null";
-    }
-
-    /**
-     * Determines whether a new node should
-     * go left or right of the current node.
-     *
-     * @param Ancor current node
-     * @param Value node being inserted
-     * @return "left" or "right"
-     */
-    String GreaterOrLessForNew(TreeNode<E> Ancor, TreeNode<E> Value) {
-
-        // Compare current node with inserted node
-        int root1 = Ancor.compareTo(Value);
-
-        String temp = "";
-
-        // Smaller values go left
-        if (root1 < 0) {
-            temp = "left";
-
-            // Larger values go right
-        } else if (root1 > 0) {
-            temp = "right";
-        }
-
-        return temp;
+        reinsertSubtree(node.getRightChild());
     }
 
     /**
@@ -265,20 +323,57 @@ public class BST<E extends Comparable<E>> {
                 containsHelper(node.getRightChild(), value);
     }
 
+    /**
+     * Calculates the height of a node in a binary tree using recursion.
+     * The height is defined as the number of edges on the longest path from the node to a leaf.
+     *
+     * @param node The current tree node being evaluated.
+     * @return The height of the node, where a leaf node has a height of 0, and a null node returns -1.
+     */
     private int calculateHeightRecution(TreeNode<E> node) {
+        // Base case: An empty node has a height of -1 to correctly offset the +1 added by its parent
         if (node == null) {
             return -1;
         }
 
+        // Recursively find the maximum height of the left subtree
         int left = calculateHeightRecution(node.getLeftChild());
+
+        // Recursively find the maximum height of the right subtree
         int right = calculateHeightRecution(node.getRightChild());
 
-        if (left != 0) {
-            return 1 + left;
-        } else if (right != 0) {
-            return 1 + right;
+        // Take the longer path between left and right subtrees, then add 1 for the current node's edge
+        return 1 + Math.max(left, right);
+    }
+    /**
+     * Returns the root node of the tree.
+     *
+     * @return root node
+     */
+    public TreeNode<E> getRoot() {
+        return root;
+    }
+
+    /**
+     * Counts the number of leaf nodes in the tree.
+     *
+     * @param node current node
+     * @return number of leaf nodes
+     */
+    int countLeafNodes(TreeNode<E> node) {
+
+        if (node == null) {
+            return 0;
         }
-        return 0;
+
+        // Leaf node
+        if (node.getLeftChild() == null &&
+                node.getRightChild() == null) {
+            return 1;
+        }
+
+        return countLeafNodes(node.getLeftChild()) +
+                countLeafNodes(node.getRightChild());
     }
 }
 
